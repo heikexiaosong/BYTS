@@ -1,0 +1,37 @@
+page-scan {
+
+    ion-col {
+        white-space: normal !important;
+    }
+
+    .item-inner {
+        border-bottom: 1px solid #dedede !important;
+        padding-right: 0px !important;
+    }
+
+  .Scan{
+    background: #1b1b1b;
+    color: #c7932b;
+  }
+
+  .Scan-button {
+    color: #ffffff;
+
+  }
+
+  .footer-btn {
+      background-color:#FFC107;
+      text-align: center;
+      border-radius: 7px;
+      width: 70%;
+      font-size: 1.8rem !important;
+  }
+
+    .btn-scanner {
+        border-radius: 10px;
+        border: solid 1px #4c68c4;
+        height: 32px !important;
+        width: 90%;
+        font-size: 1.8rem !important;
+    }
+}

@@ -1,0 +1,88 @@
+<ion-header>
+    <ion-navbar color="primary">
+        <ion-buttons icon-only left class="card-buttons" style="border-right: solid 1px #cddbf3;">
+            <button ion-button class="card-buttons" (tap)="openMenu()">
+                <img src="assets/logo.png" width="32px">
+            </button>
+        </ion-buttons>
+        <ion-title style="text-align: -webkit-center;">BYTS追溯管理系统</ion-title>
+        <ion-buttons end>
+            <button ion-button icon-only (click)="logout()">
+                <ion-icon name="power"></ion-icon>
+            </button>
+        </ion-buttons>
+    </ion-navbar>
+
+    <ion-item style="padding: 20px 16px 0 16px;">
+        <ion-label>客户信息</ion-label>
+        <ion-select [(ngModel)]="selectedCustomer" [compareWith]="compareCustomer" interface="popover">
+            <ion-option *ngFor="let customer of customers" [value]="customer">{{customer.name}}</ion-option>
+        </ion-select>
+    </ion-item>
+
+    <ion-item style="padding: 12px 16px 0 16px;">
+        <ion-label>备注说明</ion-label>
+        <ion-input type="text" [(ngModel)]="orderId"></ion-input>
+    </ion-item>
+
+
+    <ion-item STYLE="text-align:  -webkit-center; padding: 0px;">
+        <button ion-button round (click)="scanQR()" class="btn-scanner">扫 描</button>
+    </ion-item>
+</ion-header>
+
+<ion-content style="padding: 0px" scrollDownOnLoad="true">
+    <ion-list>
+        <ion-item-sliding>
+            <ion-item style="padding: 0px 3px">
+                <ion-row>
+                    <ion-col col-2>序号</ion-col>
+                    <ion-col col-3>物料</ion-col>
+                    <ion-col col-3>规格</ion-col>
+                    <ion-col col-2>数量</ion-col>
+                    <ion-col col-2>类型</ion-col>
+                </ion-row>
+            </ion-item>
+        </ion-item-sliding>
+
+        <ion-item-sliding *ngFor="let product of products; let i = index ">
+            <ion-item style="padding: 0px 3px">
+                <ion-row >
+                    <ion-col col-2>{{ i+1 }}</ion-col>
+                    <ion-col col-3>{{ product.id }}</ion-col>
+                    <ion-col col-3> <div class="item-text-wrap ">{{ product.goodsName }}/{{ product.goodsModel }}/</div></ion-col>
+                    <ion-col col-2>{{ product.quantity }}</ion-col>
+                    <ion-col col-2>{{ product.desc }}</ion-col>
+                </ion-row>
+            </ion-item>
+
+            <ion-item-options>
+                <button danger (click)="removeItem(product)">
+                    <ion-icon name="trash"></ion-icon>
+                    Delete
+                </button>
+            </ion-item-options>
+        </ion-item-sliding>
+
+        <ion-item-sliding style="height: 1px">
+            <ion-item >
+                <ion-row>
+                    <ion-col></ion-col>
+                </ion-row>
+            </ion-item>
+        </ion-item-sliding>
+
+    </ion-list>
+
+</ion-content>
+
+<ion-footer>
+    <div class="row" style="text-align: -webkit-center;">
+        <div class="col">
+            <button ion-button class="footer-btn" (click)="reset()">重置</button>
+        </div>
+        <div class="col">
+            <button ion-button class="footer-btn" (click)="submit()">提交</button>
+        </div>
+    </div>
+</ion-footer>
