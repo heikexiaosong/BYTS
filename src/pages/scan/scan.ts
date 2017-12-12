@@ -61,6 +61,12 @@ export class ScanPage {
                 data => {
                     var result = data.json();
                     console.log("Login Result: " + JSON.stringify(result));
+
+                    if ( result.errcode ){
+                        alert("[Code: " + barcodeData.text + "]" + result.errmsg);
+                        return;
+                    }
+
                     result.desc = '';
                     if (result.type == 'single') {
                         result.desc = '单个';
