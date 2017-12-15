@@ -75,16 +75,21 @@ export class LoginPage {
                   sessionStorage.setItem('access_token', result.access_token);
                   this._nav.setRoot(ScanPage);
               } else {
-                  var map = {
+                  if ( result.errcode == 20001 ) {
+                    this._nav.setRoot(LoginPage);
+                  } else {
+                    var map = {
                       "-1": "系统错误",
-                        "21003": "用户名不存在",
+                      "21003": "用户名不存在",
                       "21005": "密码错误",
                       "40000": "缺少参数",
                       "20001": "您还没有登录，请登录",
                       "43001": "查询对象没有找到",
                       "40010": "验证不通过"
+                    }
+                    alert( map[result.errcode.toString()] || result.errmsg );
                   }
-                  alert( map[result.errcode.toString()] || result.errmsg );
+
               }
           },
           err => console.error(err),

@@ -1,7 +1,7 @@
 <ion-header>
     <ion-navbar color="primary">
         <ion-buttons icon-only left class="card-buttons" style="border-right: solid 1px #cddbf3;">
-            <button ion-button class="card-buttons" (tap)="openMenu()">
+            <button ion-button class="card-buttons">
                 <img src="assets/logo.png" width="32px">
             </button>
         </ion-buttons>
@@ -13,21 +13,14 @@
         </ion-buttons>
     </ion-navbar>
 
-    <ion-item style="padding: 20px 16px 0 16px;">
-        <ion-label>客户信息</ion-label>
-        <ion-select [(ngModel)]="selectedCustomer" [compareWith]="compareCustomer" interface="popover">
-            <ion-option *ngFor="let customer of customers" [value]="customer">{{customer.name}}</ion-option>
-        </ion-select>
-    </ion-item>
+  <ion-item style="padding: 12px 16px 0 16px;">
+    <ion-label>客户信息</ion-label>
+    <ion-input type="text" [(ngModel)]="selectedCustomer.name"  (focus)="onustomerFocus($event)" readonly="true"></ion-input>
+  </ion-item>
 
-    <ion-item style="padding: 12px 16px 0 16px;">
+    <ion-item style="padding: 12px 16px 10px 16px;">
         <ion-label>备注说明</ion-label>
         <ion-input type="text" [(ngModel)]="orderId"></ion-input>
-    </ion-item>
-
-
-    <ion-item STYLE="text-align:  -webkit-center; padding: 0px;">
-        <button ion-button round (click)="scanQR()" class="btn-scanner">扫 描</button>
     </ion-item>
 </ion-header>
 
@@ -49,8 +42,8 @@
             <ion-item style="padding: 0px 3px">
                 <ion-row >
                     <ion-col col-2>{{ i+1 }}</ion-col>
-                    <ion-col col-3>{{ product.id }}</ion-col>
-                    <ion-col col-3> <div class="item-text-wrap ">{{ product.goodsName }}/{{ product.goodsModel }}/</div></ion-col>
+                    <ion-col col-3>{{ product.goodsName }}</ion-col>
+                    <ion-col col-3>{{ product.goodsModel }}</ion-col>
                     <ion-col col-2>{{ product.quantity }}</ion-col>
                     <ion-col col-2>{{ product.desc }}</ion-col>
                 </ion-row>

@@ -15,13 +15,15 @@ import { Api } from '../providers/api';
 import { LoginPage } from '../pages/login/login';
 import { ScanPage } from '../pages/scan/scan';
 import { HomePage } from '../pages/home/home';
+import { CustomerSelectPage } from "../pages/customer-select/customer-select";
 
 @NgModule({
   declarations: [
     MyApp,
     LoginPage,
     HomePage,
-    ScanPage
+    ScanPage,
+    CustomerSelectPage
   ],
   imports: [
     BrowserModule,
@@ -34,7 +36,8 @@ import { HomePage } from '../pages/home/home';
     MyApp,
     LoginPage,
     ScanPage,
-    HomePage
+    HomePage,
+    CustomerSelectPage
   ],
   providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler },
     Api,

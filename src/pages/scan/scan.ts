@@ -1,261 +1,285 @@
-import {Component, ViewChild} from '@angular/core';
-import {Content, NavController} from 'ionic-angular';
-import { AlertController } from 'ionic-angular';
+import {Component, ViewChild, HostListener, ChangeDetectorRef  } from '@angular/core';
+import {Content, NavController, AlertController, ToastController } from 'ionic-angular';
+import {Storage} from '@ionic/storage';
 
 import {Api} from "../../providers/api";
-
-import {BarcodeScanner} from "@ionic-native/barcode-scanner";
-
 import {LoginPage} from "../login/login";
+import {CustomerSelectPage} from "../customer-select/customer-select";
 
 @Component({
-    selector: 'page-scan',
-    templateUrl: 'scan.html'
+  selector: 'page-scan',
+  templateUrl: 'scan.html'
 })
 export class ScanPage {
 
-    @ViewChild(Content) content: Content;
+  @ViewChild(Content) content: Content;
 
-    public products;
-    public customers;
+  @HostListener('document:keypress', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
 
-    private selectedCustomer = {};
-    private orderId = "";
+      console.log(JSON.stringify(event.key) + event.code);
+      console.log("Code:" + this.productCode);
+      if ( event.keyCode == 13 ){
+        this.loadProduct(this.productCode);
+        this.productCode = "";
+      } else {
+        this.productCode = this.productCode + event.key;
+      }
+  }
 
-    constructor(private _nav: NavController,
-                private _api: Api,
-                private _barcodeScanner: BarcodeScanner,
-                public alertCtrl: AlertController) {
-        this.products = [];
-        this.customers = [];
+  public products;
+
+  private selectedCustomer = {};
+  private orderId = "";
+
+  private map = {
+    "-1": "系统错误",
+    "21003": "用户名不存在",
+    "21005": "密码错误",
+    "40000": "缺少参数",
+    "20001": "您还没有登录，请登录",
+    "43001": "查询对象没有找到",
+    "40010": "验证不通过"
+  }
+
+  private productCode: string = "";
+
+  constructor(private _nav: NavController,
+              private _api: Api,
+              public alertCtrl: AlertController,
+              public cd: ChangeDetectorRef,
+              public toastCtrl: ToastController,
+              private storage: Storage) {
+    this.products = [];
+  }
+
+  ionViewDidLoad() {
+  }
+
+  compareCustomer(e1, e2): boolean {
+    return e1 && e2 ? e1.code === e2.code : e1 === e2;
+  }
+
+  private loadProduct(code) {
+
+    console.log("Load: " + code);
+
+    if (code.length == 0) {
+      return;
     }
 
-    ionViewDidLoad() {
-        this._api.loadCustomers(100).subscribe(
-            data => {
-                var result = data.json();
-                console.log("Login Result: " + JSON.stringify(result));
-                this.customers = result;
-            },
-            err => console.error(err),
-            () => {
-                console.log('getRepos completed');
-            }
-        );
-    }
+    this._api.loadProduct(code).subscribe(
+      data => {
+        var result = data.json();
+        console.log("Product: " + JSON.stringify(result));
 
-    compareCustomer(e1, e2): boolean {
-        return e1 && e2 ? e1.code === e2.code : e1 === e2;
-    }
+        if (result.errcode) {
 
-    public scanQR() {
-        this._barcodeScanner.scan().then((barcodeData) => {
-            if (barcodeData.cancelled) {
-                console.log("User cancelled the action!");
-                return false;
-            }
-            console.log("Scanned successfully!");
-            console.log(barcodeData);
+          if ( result.errcode == 20001 ) {
+            this._nav.setRoot(LoginPage);
+          } else {
+            this.toastCtrl.create({
+              message: "[编码: " + code + "]" + "\n" + (this.map[result.errcode.toString()] || result.errmsg),
+              duration: 1000
+            }).present();
+          }
+          return;
+        }
 
-            this._api.loadProduct(barcodeData.text).subscribe(
-                data => {
-                    var result = data.json();
-                    console.log("Login Result: " + JSON.stringify(result));
-
-                    if ( result.errcode ){
-                        alert("[Code: " + barcodeData.text + "]" + result.errmsg);
-                        return;
-                    }
-
-                    result.desc = '';
-                    if (result.type == 'single') {
-                        result.desc = '单个';
-                    } else if (result.type == 'box') {
-                        result.desc = '箱';
-                    }
-
-                    let include = false;
-                    for (let i = 0; i < this.products.length; i++) {
-                        if (this.products[i].id === result.id) {
-                            this.products[i].quantity = this.products[i].quantity + result.quantity;
-                            include = true;
-                            break;
-                        }
-                    }
-
-                    if ( !include ){
-                        this.products.push(result);
-                    }
-                    this.content.scrollToBottom();
-                },
-                err => console.error(err),
-                () => {
-                    console.log('getRepos completed');
-                }
-            );
-        }, (err) => {
-            console.log(err);
-        });
-    }
-
-    removeItem(product) {
         for (let i = 0; i < this.products.length; i++) {
-            if (this.products[i] == product) {
-                this.products.splice(i, 1);
+          if (this.products[i].id === result.id) {
+            return;
+          }
+        }
+
+        result.desc = '';
+        if (result.type == 'single') {
+          result.desc = '单个';
+        } else if (result.type == 'box') {
+          result.desc = '箱';
+        }
+        this.products.push(result);
+        this.cd.detectChanges();
+        this.content.scrollToBottom();
+      },
+      err => console.error(err),
+      () => {
+        console.log('getRepos completed');
+      }
+    );
+
+    this.productCode = "";
+  }
+
+  removeItem(product) {
+    for (let i = 0; i < this.products.length; i++) {
+      if (this.products[i] == product) {
+        this.products.splice(i, 1);
+      }
+    }
+  }
+
+  logout() {
+    let confirm = this.alertCtrl.create({
+      message: '确定要退出当前账户?',
+      buttons: [
+        {
+          text: '取消',
+          handler: () => {
+            console.log('Disagree clicked');
+          }
+        },
+        {
+          text: '确定',
+          handler: () => {
+            this.storage.set('access_token', "");
+            this._nav.setRoot(LoginPage);
+          }
+        }]
+    });
+    confirm.present();
+  }
+
+  reset() {
+    let confirm = this.alertCtrl.create({
+      message: '确定要重置页面数据?',
+      buttons: [
+        {
+          text: '取消',
+          handler: () => {
+            console.log('Disagree clicked');
+          }
+        },
+        {
+          text: '确定',
+          handler: () => {
+            this.products = [];
+            this.selectedCustomer = {name: ""};
+            this.orderId = "";
+          }
+        }]
+    });
+
+    confirm.present();
+  }
+
+  // 订单提交
+  submit() {
+    if (this.selectedCustomer == null
+      || this.selectedCustomer["code"] == null
+      || this.selectedCustomer["code"] == "") {
+      debugger;
+      alert("请选择一个客户");
+      return
+    }
+
+    if (this.products == null || this.products.length == 0) {
+      alert("不能创建空明细订单");
+      return
+    }
+
+    let confirm = this.alertCtrl.create({
+      message: '确定要提交数据?',
+      buttons: [
+        {
+          text: '取消',
+          handler: () => {
+            console.log('Disagree clicked');
+          }
+        },
+        {
+          text: '确定',
+          handler: () => {
+            var batchMap = {};
+            var relationQuantity = 0;
+            for (let product of this.products) {
+              if (batchMap[product.batchId] == null) {
+                batchMap[product.batchId] = [];
+              }
+              batchMap[product.batchId].push(product);
+              relationQuantity = relationQuantity + product.quantity;
             }
-        }
-    }
 
-    logout() {
-        let confirm = this.alertCtrl.create({
-            message: '确定要退出当前账户?',
-            buttons: [
-                {
-                    text: '取消',
-                    handler: () => {
-                        console.log('Disagree clicked');
+            var goodsBatchList = [];
+            for (let batchId in batchMap) {
+              var list = batchMap[batchId];
+              if (list != null && list.length > 0) {
+                debugger;
+                var batch_base = list[0];
+                var batch = {
+                  batch: batch_base["batchId"],
+                  batchCode: batch_base["batchCode"],
+                  goods: batch_base["goodsId"],
+                  packagingList: [],
+                  qrcodes: [],
+                  total: 0
+                };
+
+                for (let product of list) {
+                  if (product["type"] == "box") {
+                    batch.packagingList.push({
+                      packaging: product.id,
+                      quantity: product.quantity
+                    });
+                  } else if (product["type"] == "single") {
+                    if (batch.qrcodes.indexOf(product.id) < 0) {
+                      batch.qrcodes.push(product.id);
                     }
-                },
-                {
-                    text: '确定',
-                    handler: () => {
-                        this._nav.setRoot(LoginPage);
-                    }
-                }]
-        });
-
-        confirm.present();
-    }
-
-    reset() {
-
-        let confirm = this.alertCtrl.create({
-            message: '确定要重置页面数据?',
-            buttons: [
-                {
-                    text: '取消',
-                    handler: () => {
-                        console.log('Disagree clicked');
-                    }
-                },
-                {
-                    text: '确定',
-                    handler: () => {
-                        this.products = [];
-                        this.selectedCustomer = {};
-                        this.orderId = "";
-                    }
-                }]
-        });
-
-        confirm.present();
-    }
-
-    // 订单提交
-    submit() {
-        if ( this.selectedCustomer==null
-            || this.selectedCustomer["code"] ==null
-            || this.selectedCustomer["code"] == "" ){
-            debugger;
-            alert("请选择一个客户");
-            return
-        }
-
-        if ( this.products==null || this.products.length==0 ){
-            alert("不能创建空明细订单");
-            return
-        }
-
-        let confirm = this.alertCtrl.create({
-            message: '确定要提交数据?',
-            buttons: [
-                {
-                    text: '取消',
-                    handler: () => {
-                        console.log('Disagree clicked');
-                    }
-                },
-                {
-                    text: '确定',
-                    handler: () => {
-                        var batchMap = {};
-                        var relationQuantity = 0;
-                        for (let product of this.products) {
-                            if  ( batchMap[product.batchId] == null ){
-                                batchMap[product.batchId] = [];
-                            }
-                            batchMap[product.batchId].push(product);
-                            relationQuantity = relationQuantity + product.quantity;
-                        }
-
-                        var goodsBatchList = [];
-                        for (let batchId in batchMap) {
-                            var list = batchMap[batchId];
-                            if ( list!=null && list.length > 0 ){
-                                debugger;
-                                var batch_base = list[0];
-                                var batch = {
-                                    batch: batch_base["batchId"],
-                                    batchCode: batch_base["batchCode"],
-                                    goods: batch_base["goodsId"],
-                                    packagingList: [],
-                                    qrcodes: [],
-                                    total: 0
-                                };
-
-                                for (let product of list) {
-                                    if ( product["type"] == "box" ){
-                                        batch.packagingList.push({
-                                            packaging: product._id,
-                                            quantity: product.quantity
-                                        });
-                                    } else if ( product["type"] == "single" ){
-                                        if ( batch.qrcodes.indexOf(product.id) < 0 ){
-                                            batch.qrcodes.push(product.id);
-                                        }
-                                    } else {
-                                        console.log("Type 格式不正确: " + JSON.stringify(product));
-                                        continue;
-                                    }
-                                    batch.total = batch.total + product.quantity;
-                                }
-                                goodsBatchList.push(batch);
-                            }
-                        }
-
-                        debugger;
-
-                        var order_content = {
-                            order: this.orderId,
-                            customer: this.selectedCustomer["_id"],
-                            customerName: this.selectedCustomer["name"],
-                            relationQuantity: relationQuantity,
-                            goodsBatchList: goodsBatchList
-                        };
-
-                        this._api.submitOrder(order_content).subscribe(
-                            data => {
-                                var result = data.json();
-                                console.log("Order Submit Result: " + JSON.stringify(result));
-                                result.desc = '';
-                                if (result.errmsg == 'ok') {
-                                    alert("出库单生成成功");
-                                    this.products = [];
-                                    this.selectedCustomer = {};
-                                    this.orderId = "";
-                                } else {
-                                    alert("出库单生成失败: " + result.errmsg )
-                                }
-                            },
-                            err => console.error(err),
-                            () => {
-                                console.log('getRepos completed');
-                            }
-                        );
-                    }
+                  } else {
+                    console.log("Type 格式不正确: " + JSON.stringify(product));
+                    continue;
+                  }
+                  batch.total = batch.total + product.quantity;
                 }
-            ]
-        });
-        confirm.present();
-    }
+                goodsBatchList.push(batch);
+              }
+            }
+
+            var order_content = {
+              order: this.orderId,
+              customer: this.selectedCustomer["_id"],
+              customerName: this.selectedCustomer["name"],
+              relationQuantity: relationQuantity,
+              goodsBatchList: goodsBatchList
+            };
+
+            this._api.submitOrder(order_content).subscribe(
+              data => {
+                var result = data.json();
+                console.log("Order Submit Result: " + JSON.stringify(result));
+                result.desc = '';
+                if (result.errmsg == 'ok') {
+                  alert("出库单生成成功");
+                  this.products = [];
+                  this.selectedCustomer = {name: ""};
+                  this.orderId = "";
+                } else {
+                  if ( result.errcode == 20001 ) {
+                    this._nav.setRoot(LoginPage);
+                  } else {
+                    alert("出库单生成失败: " + (this.map[result.errcode.toString()] || result.errmsg))
+                  }
+                }
+              },
+              err => console.error(err),
+              () => {
+                console.log('getRepos completed');
+              }
+            );
+          }
+        }
+      ]
+    });
+    confirm.present();
+  }
+
+  // 用户输入框
+  onustomerFocus(event) {
+    new Promise((resolve, reject) => {
+      this._nav.push(CustomerSelectPage, { resolve: resolve });
+    }).then((data) => {
+      this.selectedCustomer = data;
+    });
+
+  }
 }
