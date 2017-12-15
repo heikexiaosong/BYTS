@@ -6,7 +6,6 @@ import { MyApp } from './app.component';
 
 import { StatusBar } from "@ionic-native/status-bar";
 import { SplashScreen } from "@ionic-native/splash-screen";
-import { BarcodeScanner } from "@ionic-native/barcode-scanner";
 
 import { IonicStorageModule } from '@ionic/storage';
 
@@ -42,8 +41,7 @@ import { CustomerSelectPage } from "../pages/customer-select/customer-select";
   providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler },
     Api,
     StatusBar,
-    SplashScreen,
-    BarcodeScanner
+    SplashScreen
   ]
 })
 export class AppModule { }

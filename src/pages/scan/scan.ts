@@ -216,6 +216,7 @@ export class ScanPage {
                 };
 
                 for (let product of list) {
+                  batch["batchCode"] = product["batchCode"] || batch["batchCode"];
                   if (product["type"] == "box") {
                     batch.packagingList.push({
                       packaging: product.id,
