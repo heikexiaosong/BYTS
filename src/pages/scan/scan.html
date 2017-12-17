@@ -14,14 +14,18 @@
     </ion-navbar>
 
   <ion-item style="padding: 12px 16px 0 16px;">
-    <ion-label>客户信息</ion-label>
-    <ion-input type="text" [(ngModel)]="selectedCustomer.name"  (focus)="onustomerFocus($event)" readonly="true"></ion-input>
+    <ion-label item-start>客户信息</ion-label>
+    <ion-input type="text" [(ngModel)]="selectedCustomer.name"  (ionFocus)="onustomerFocus($event)" readonly="true"></ion-input>
   </ion-item>
 
+
     <ion-item style="padding: 12px 16px 10px 16px;">
-        <ion-label>备注说明</ion-label>
-        <ion-input type="text" [(ngModel)]="orderId"></ion-input>
+        <ion-label item-start>备注说明</ion-label>
+        <ion-input type="text" [(ngModel)]="orderId" (ionFocus)="commentFocus($event)" readonly="true"></ion-input>
     </ion-item>
+
+
+  <ion-label style="text-align: right">合计: {{box}} 箱 {{single}} 件</ion-label>
 </ion-header>
 
 <ion-content style="padding: 0px" scrollDownOnLoad="true">
@@ -32,11 +36,12 @@
                     <ion-col col-2>序号</ion-col>
                     <ion-col col-3>物料</ion-col>
                     <ion-col col-3>规格</ion-col>
-                    <ion-col col-2>数量</ion-col>
+                    <ion-col col-2>件数</ion-col>
                     <ion-col col-2>类型</ion-col>
                 </ion-row>
             </ion-item>
         </ion-item-sliding>
+
 
         <ion-item-sliding *ngFor="let product of products; let i = index ">
             <ion-item style="padding: 0px 3px">
@@ -44,7 +49,7 @@
                     <ion-col col-2>{{ i+1 }}</ion-col>
                     <ion-col col-3>{{ product.goodsName }}</ion-col>
                     <ion-col col-3>{{ product.goodsModel }}</ion-col>
-                    <ion-col col-2>{{ product.quantity }}</ion-col>
+                    <ion-col col-2>{{ product.quantity }} 件</ion-col>
                     <ion-col col-2>{{ product.desc }}</ion-col>
                 </ion-row>
             </ion-item>
@@ -72,7 +77,7 @@
 <ion-footer>
     <div class="row" style="text-align: -webkit-center;">
         <div class="col">
-            <button ion-button class="footer-btn" (click)="reset()">取消</button>
+            <button ion-button class="footer-btn" (click)="reset()" style="background-color: #dddddd;">取消</button>
         </div>
         <div class="col">
             <button ion-button class="footer-btn" (click)="submit()">完成</button>

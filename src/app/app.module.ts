@@ -1,6 +1,7 @@
 import { NgModule, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpModule } from '@angular/http';
+import { Network } from '@ionic-native/network';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { MyApp } from './app.component';
 
@@ -15,6 +16,7 @@ import { LoginPage } from '../pages/login/login';
 import { ScanPage } from '../pages/scan/scan';
 import { HomePage } from '../pages/home/home';
 import { CustomerSelectPage } from "../pages/customer-select/customer-select";
+import { CommnetPage } from '../pages/commnet/commnet';
 
 @NgModule({
   declarations: [
@@ -22,7 +24,8 @@ import { CustomerSelectPage } from "../pages/customer-select/customer-select";
     LoginPage,
     HomePage,
     ScanPage,
-    CustomerSelectPage
+    CustomerSelectPage,
+    CommnetPage
   ],
   imports: [
     BrowserModule,
@@ -36,12 +39,14 @@ import { CustomerSelectPage } from "../pages/customer-select/customer-select";
     LoginPage,
     ScanPage,
     HomePage,
-    CustomerSelectPage
+    CustomerSelectPage,
+    CommnetPage
   ],
   providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler },
     Api,
     StatusBar,
-    SplashScreen
+    SplashScreen,
+    Network
   ]
 })
 export class AppModule { }

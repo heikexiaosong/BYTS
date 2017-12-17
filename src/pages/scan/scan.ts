@@ -5,6 +5,7 @@ import {Storage} from '@ionic/storage';
 import {Api} from "../../providers/api";
 import {LoginPage} from "../login/login";
 import {CustomerSelectPage} from "../customer-select/customer-select";
+import {CommnetPage} from "../commnet/commnet";
 
 @Component({
   selector: 'page-scan',
@@ -31,6 +32,9 @@ export class ScanPage {
 
   private selectedCustomer = {};
   private orderId = "";
+
+  private  box = 0;
+  private single = 0;
 
   private map = {
     "-1": "系统错误",
@@ -74,7 +78,6 @@ export class ScanPage {
         console.log("Product: " + JSON.stringify(result));
 
         if (result.errcode) {
-
           if ( result.errcode == 20001 ) {
             this._nav.setRoot(LoginPage);
           } else {
@@ -94,9 +97,11 @@ export class ScanPage {
 
         result.desc = '';
         if (result.type == 'single') {
-          result.desc = '单个';
+          result.desc = '件';
+          this.single++;
         } else if (result.type == 'box') {
           result.desc = '箱';
+          this.box++;
         }
         this.products.push(result);
         this.cd.detectChanges();
@@ -115,8 +120,14 @@ export class ScanPage {
     for (let i = 0; i < this.products.length; i++) {
       if (this.products[i] == product) {
         this.products.splice(i, 1);
+        if (product.type == 'single') {
+          this.single--;
+        } else if (product.type == 'box') {
+          this.box--;
+        }
       }
     }
+    this.cd.detectChanges();
   }
 
   logout() {
@@ -156,6 +167,8 @@ export class ScanPage {
             this.products = [];
             this.selectedCustomer = {name: ""};
             this.orderId = "";
+            this.box=0;
+            this.single=0;
           }
         }]
     });
@@ -254,6 +267,8 @@ export class ScanPage {
                   this.products = [];
                   this.selectedCustomer = {name: ""};
                   this.orderId = "";
+                  this.box=0;
+                  this.single=0;
                 } else {
                   if ( result.errcode == 20001 ) {
                     this._nav.setRoot(LoginPage);
@@ -282,5 +297,41 @@ export class ScanPage {
       this.selectedCustomer = data;
     });
 
+  }
+
+  commentFocus(event){
+
+    let prompt = this.alertCtrl.create({
+      message: "备注说明, 最多128字符",
+      inputs: [
+        {
+          name: 'title',
+          placeholder: '备注说明'
+        },
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          handler: data => {
+            console.log('Cancel clicked');
+          }
+        },
+        {
+          text: 'Save',
+          handler: data => {
+            console.log('Saved clicked' + JSON.stringify(data));
+            this.orderId = data.title;
+          }
+        }
+      ]
+    });
+    prompt.present();
+
+    // new Promise((resolve, reject) => {
+    //   this._nav.push(CommnetPage, { resolve: resolve });
+    // }).then((data) => {
+    //   debugger;
+    //   console.log(JSON.stringify(data));
+    // });
   }
 }

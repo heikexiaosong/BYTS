@@ -1,21 +1,63 @@
 import {Injectable} from '@angular/core';
 import {Http, Headers} from '@angular/http';
-import {LoadingController } from 'ionic-angular';
+import {LoadingController, ToastController} from 'ionic-angular';
 import {Storage} from '@ionic/storage';
 import 'rxjs/add/operator/map';
+import { Network } from '@ionic-native/network';
 
 @Injectable()
 export class Api {
     private headers = new Headers();
 
-    // private doamin = "http://channel.cloudinward.com/ws";
+  //private doamin = "http://channel.cloudinward.com/ws";
 
     private doamin = "http://114.55.253.187:8125/ws";
 
+    private net_toast;
+
+
+    dismissHandler() {
+      console.info('Toast onDidDismiss()');
+      this.net_toast = null;
+    }
+
     constructor(private http: Http,
                 private _loadingController: LoadingController,
+                private network: Network,
+                public toastCtrl: ToastController,
                 private storage: Storage) {
-        console.log('Hello Api Provider');
+
+      console.log('Hello Api Provider');
+
+
+      let disconnectSubscription = network.onDisconnect().subscribe(() => {
+        console.log('network was disconnected :-(');
+        if ( this.net_toast == null ) {
+          this.net_toast = this.toastCtrl.create({
+            message: '网络通讯中断, 请检查网络设置',
+            showCloseButton: true,
+            closeButtonText: '知道了'
+          });
+          this.net_toast.onDidDismiss(this.dismissHandler);
+          this.net_toast.present();
+        }
+
+      });
+
+
+      // stop disconnect watch （停止断网检测）
+      // disconnectSubscription.unsubscribe();
+      // watch network for a connection
+      let connectSubscription = network.onConnect().subscribe(() => {
+        console.log('network connected!');
+        if(this.network.type != 'none') {
+          if ( this.net_toast == null ) {
+            this.net_toast.dismiss();
+          }
+        }
+      });
+
+      console.log(network.type)
     }
 
     login(username, password) {

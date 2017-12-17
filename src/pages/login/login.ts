@@ -30,6 +30,7 @@ export class LoginPage {
   }
 
   ionViewDidLoad() {
+
     console.log('ionViewDidLoad LoginPage');
 
       this.storage.get('access_token').then((val) => {
