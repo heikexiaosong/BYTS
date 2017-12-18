@@ -9,11 +9,11 @@ import { Network } from '@ionic-native/network';
 export class Api {
     private headers = new Headers();
 
-  //private doamin = "http://channel.cloudinward.com/ws";
+  private doamin = "http://channel.cloudinward.com/ws";
 
-    private doamin = "http://114.55.253.187:8125/ws";
+  //private doamin = "http://114.55.253.187:8125/ws";
 
-    private net_toast;
+  private net_toast;
 
 
     dismissHandler() {

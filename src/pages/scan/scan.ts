@@ -302,22 +302,21 @@ export class ScanPage {
   commentFocus(event){
 
     let prompt = this.alertCtrl.create({
-      message: "备注说明, 最多128字符",
       inputs: [
         {
           name: 'title',
-          placeholder: '备注说明'
+          placeholder: '备注说明, 最多128字符'
         },
       ],
       buttons: [
         {
-          text: 'Cancel',
+          text: '取消',
           handler: data => {
             console.log('Cancel clicked');
           }
         },
         {
-          text: 'Save',
+          text: '完成',
           handler: data => {
             console.log('Saved clicked' + JSON.stringify(data));
             this.orderId = data.title;
