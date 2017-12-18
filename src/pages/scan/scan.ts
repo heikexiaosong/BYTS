@@ -98,11 +98,12 @@ export class ScanPage {
         result.desc = '';
         if (result.type == 'single') {
           result.desc = '件';
-          this.single++;
         } else if (result.type == 'box') {
           result.desc = '箱';
           this.box++;
         }
+        this.single += result.quantity;
+
         this.products.push(result);
         this.cd.detectChanges();
         this.content.scrollToBottom();
@@ -120,11 +121,10 @@ export class ScanPage {
     for (let i = 0; i < this.products.length; i++) {
       if (this.products[i] == product) {
         this.products.splice(i, 1);
-        if (product.type == 'single') {
-          this.single--;
-        } else if (product.type == 'box') {
+        if ( product.type == 'box') {
           this.box--;
         }
+        this.single -= product.quantity;
       }
     }
     this.cd.detectChanges();
