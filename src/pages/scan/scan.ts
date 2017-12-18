@@ -72,6 +72,13 @@ export class ScanPage {
       return;
     }
 
+    // if ( code ==1){
+    //   code  = "http://p.jobin9.com/qr/58ba60ea26a196073464cd1c";
+    // } else {
+    //   code  = "000000000001055";
+    // }
+
+
     this._api.loadProduct(code).subscribe(
       data => {
         var result = data.json();
