@@ -1,0 +1,29 @@
+<ion-header>
+
+  <ion-navbar color="primary">
+    <ion-title>备注说明</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+
+  <ion-item>
+    <ion-textarea placeholder="备注说明, 最多128字符" max="128" [(ngModel)]="comment" ></ion-textarea>
+  </ion-item>
+
+
+</ion-content>
+
+
+<ion-footer>
+  <div class="row" style="text-align: -webkit-center;">
+    <div class="col">
+      <button ion-button class="footer-btn" (click)="cancel()" style="background-color: #dddddd;">取消</button>
+    </div>
+    <div class="col">
+      <button ion-button class="footer-btn" (click)="submit()">完成</button>
+    </div>
+  </div>
+</ion-footer>
