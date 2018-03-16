@@ -82,7 +82,7 @@ export class Api {
         return subscribe;
     }
 
-    loadCustomers(perPage) {
+    loadCustomers(perPage, keyword) {
         this.storage.set('access_token', '');
         let loading = this._loadingController.create({
             content: "Please wait...",
@@ -91,7 +91,7 @@ export class Api {
 
         let access_token = sessionStorage.getItem('access_token');
 
-        var subscribe = this.http.get(this.doamin + `/customers?access_token=` + access_token + `&perPage=` + perPage);
+        var subscribe = this.http.get(this.doamin + `/customers?access_token=` + access_token + `&perPage=` + perPage + `&keywords=` + keyword);
         loading.dismiss();
         return subscribe;
     }

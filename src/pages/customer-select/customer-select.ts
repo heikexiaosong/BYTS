@@ -36,7 +36,7 @@ export class CustomerSelectPage {
     this.customers = [];
     console.log('ionViewDidLoad CustomerSelectPage');
 
-    this._api.loadCustomers(100).subscribe(
+    this._api.loadCustomers(100, '').subscribe(
       data => {
         var result = data.json();
         console.log("Login Result: " + JSON.stringify(result));
@@ -54,11 +54,18 @@ export class CustomerSelectPage {
 
   searchCustomer(event){
     this.showCustomers = [];
-    for ( var i = 0; i < this.customers.length; i++ ) {
-      if( this.customers[ i ].name.indexOf(this.keyword) > -1){
-        this.showCustomers.push(this.customers[ i ])
+    this._api.loadCustomers(100, this.keyword).subscribe(
+      data => {
+        var result = data.json();
+        console.log("Login Result: " + JSON.stringify(result));
+        this.customers = result;
+        this.showCustomers = this.customers;
+      },
+      err => console.error(err),
+      () => {
+        console.log('getRepos completed');
       }
-    }
+    );
   }
 
   customerSelected(customer) {
